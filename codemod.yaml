@@ -1,0 +1,23 @@
+schema_version: "1.0"
+
+name: "apeshift"
+version: "1.0.0"
+description: "Production-grade Brownie to Ape Framework migration codemod — 20+ deterministic AST rules covering imports, accounts, deployments, transactions, chain APIs, testing patterns, and Wei conversions"
+author: "Boring AI"
+license: "MIT"
+
+targets:
+  languages: ["python"]
+
+keywords: ["brownie", "ape", "apeworx", "migration", "smart-contracts", "ethereum", "web3", "python", "solidity", "vyper"]
+
+registry:
+  access: "public"
+  visibility: "public"
+
+capabilities: []
+
+workflows:
+  - name: main
+    default: true
+    path: workflow.yaml

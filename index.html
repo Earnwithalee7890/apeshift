@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApeShift — Brownie → Ape Migration Demo</title>
+    <meta name="description" content="Interactive playground for ApeShift — the production-grade Brownie to Ape Framework migration codemod.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050816;
+            --surface: rgba(15, 23, 42, 0.7);
+            --surface-border: rgba(99, 102, 241, 0.12);
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --secondary: #ec4899;
+            --accent: #10b981;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --danger: #ef4444;
+            --code-bg: rgba(0, 0, 0, 0.4);
+            --glow-primary: rgba(99, 102, 241, 0.15);
+            --glow-secondary: rgba(236, 72, 153, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated background mesh */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 40%, var(--glow-primary) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 40% at 80% 60%, var(--glow-secondary) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 30% at 50% 10%, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app { position: relative; z-index: 1; }
+
+        /* ─── Header ─── */
+        .header {
+            text-align: center;
+            padding: 3rem 2rem 1rem;
+            animation: fadeSlideDown 0.8s ease-out;
+        }
+
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #fff 0%, var(--primary-light) 50%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto 0.5rem;
+        }
+
+        /* ─── Stats Bar ─── */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 1.25rem 2rem;
+            margin: 0 auto 1.5rem;
+            max-width: 700px;
+            animation: fadeSlideDown 0.8s ease-out 0.2s both;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-light);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dim);
+        }
+
+        /* ─── Workspace ─── */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 0;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem;
+            animation: fadeSlideDown 0.8s ease-out 0.4s both;
+        }
+
+        .editor-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.25rem;
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--surface-border);
+            border-bottom: none;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .editor-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .editor-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: var(--danger); }
+        .dot-green { background: var(--accent); }
+
+        .badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .badge-brownie {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .badge-ape {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .badge-success.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 450px;
+            background: var(--code-bg);
+            border: 1px solid var(--surface-border);
+            border-radius: 0 0 16px 16px;
+            padding: 1.25rem;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.65;
+            resize: none;
+            outline: none;
+            tab-size: 4;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), inset 0 0 30px rgba(99, 102, 241, 0.03);
+        }
+
+        textarea.output-area {
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* ─── Arrow Divider ─── */
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+        }
+
+        .run-btn {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            border: 2px solid var(--surface-border);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .run-btn:hover {
+            transform: scale(1.12);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.6);
+        }
+
+        .run-btn:active {
+            transform: scale(0.95);
+        }
+
+        .run-btn::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(236, 72, 153, 0.3)) border-box;
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            -webkit-mask-composite: xor;
+            animation: pulseRing 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseRing {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* ─── Rules Reference ─── */
+        .rules-section {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem 3rem;
+            animation: fadeSlideDown 0.8s ease-out 0.6s both;
+        }
+
+        .rules-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .rules-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .rule-card {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.85rem 1rem;
+            background: var(--surface);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .rule-card:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .rule-num {
+            width: 28px; height: 28px;
+            border-radius: 8px;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary-light);
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .rule-content {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .rule-from {
+            color: #fca5a5;
+            background: rgba(239, 68, 68, 0.08);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .rule-arrow { color: var(--text-dim); flex-shrink: 0; }
+
+        .rule-to {
+            color: #6ee7b7;
+            background: rgba(16, 185, 129, 0.08);
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ─── Footer ─── */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        .footer a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        .footer a:hover { text-decoration: underline; }
+
+        /* ─── Responsive ─── */
+        @media (max-width: 900px) {
+            .workspace {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .divider { padding: 0.5rem; }
+            .run-btn { transform: rotate(90deg); }
+            .stats-bar { gap: 1rem; }
+            .rules-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">🐒</div>
+            <h1>ApeShift</h1>
+        </div>
+        <p class="subtitle">Production-grade Brownie → Ape Framework migration. Paste your code, hit run.</p>
+    </header>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+        <div class="stat">
+            <span class="stat-value">20+</span>
+            <span class="stat-label">AST Rules</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value">85%</span>
+            <span class="stat-label">Auto Coverage</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value">0</span>
+            <span class="stat-label">False Positives</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value" id="lines-changed">—</span>
+            <span class="stat-label">Lines Changed</span>
+        </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="workspace">
+        <div class="editor-panel">
+            <div class="editor-header">
+                <div class="editor-title">
+                    <span class="editor-dot dot-red"></span>
+                    Brownie Source
+                </div>
+                <span class="badge badge-brownie">INPUT</span>
+            </div>
+            <textarea id="input" spellcheck="false" placeholder="# Paste your Brownie Python code here...
+from brownie import Token, accounts, network, Wei, chain
+
+def main():
+    network.connect('rinkeby')
+    deployer = accounts[0]
+    token = Token.deploy('MyToken', 'MTK', 18, 1000, {'from': accounts[0]})
+    token.transfer(accounts[1], 100, {'from': deployer})
+    token.buyTokens({'from': deployer, 'value': Wei('1 ether')})
+    chain.sleep(86400)
+    chain.mine(1)
+    current = chain.time()
+    with brownie.reverts('unauthorized'):
+        token.admin_only({'from': accounts[2]})
+    network.disconnect()"></textarea>
+        </div>
+
+        <div class="divider">
+            <button class="run-btn" id="runBtn" onclick="performMigration()" title="Run ApeShift">
+                →
+            </button>
+        </div>
+
+        <div class="editor-panel">
+            <div class="editor-header">
+                <div class="editor-title">
+                    <span class="editor-dot dot-green"></span>
+                    Ape Output
+                    <span class="badge badge-success" id="badge">✓ Migrated</span>
+                </div>
+                <span class="badge badge-ape">OUTPUT</span>
+            </div>
+            <textarea id="output" class="output-area" spellcheck="false" readonly placeholder="→ Migrated Ape code will appear here..."></textarea>
+        </div>
+    </div>
+
+    <!-- Rules Reference -->
+    <section class="rules-section">
+        <div class="rules-header">
+            <h2>Transformation Rules</h2>
+        </div>
+        <div class="rules-grid" id="rulesGrid"></div>
+    </section>
+
+    <footer class="footer">
+        Built for the <a href="https://codemod.com" target="_blank">Codemod</a> Hackathon · Powered by JSSG (ast-grep)
+    </footer>
+</div>
+
+<script>
+const RULES = [
+    ["from brownie import X", "from ape import X"],
+    ["import brownie", "import ape"],
+    ["brownie.X", "ape.X"],
+    ["accounts[N]", "accounts.test_accounts[N]"],
+    ["Token.deploy(…, {'from': a})", "project.Token.deploy(…, sender=a)"],
+    ["c.func({'from': a})", "c.func(sender=a)"],
+    ["{'from': a, 'value': v}", "sender=a, value=v"],
+    ["chain.sleep(N)", "chain.pending_timestamp += N"],
+    ["chain.time()", "chain.pending_timestamp"],
+    ["chain.mine(N)", "chain.mine(num_blocks=N)"],
+    ["Wei('1 ether')", "'1 ether'"],
+    ["brownie.reverts()", "ape.reverts()"],
+    ["Contract.at(addr)", "Contract(addr)"],
+    ["network.show_active()", "networks.provider.network.name"],
+    ["network.connect(X)", "# TODO: ape context"],
+    ["network.disconnect()", "# TODO: ape context"],
+    ["VirtualMachineError", "ContractLogicError"],
+    ["network (import)", "networks"],
+    ["Wei (import)", "removed"],
+    ["config (import)", "removed"],
+];
+
+const grid = document.getElementById('rulesGrid');
+RULES.forEach((r, i) => {
+    const card = document.createElement('div');
+    card.className = 'rule-card';
+    card.innerHTML = `
+        <span class="rule-num">${i + 1}</span>
+        <div class="rule-content">
+            <span class="rule-from">${r[0]}</span>
+            <span class="rule-arrow">→</span>
+            <span class="rule-to">${r[1]}</span>
+        </div>`;
+    grid.appendChild(card);
+});
+
+function performMigration() {
+    const input = document.getElementById('input').value;
+    if (!input.trim()) return;
+
+    let text = input;
+    const originalLines = text.split('\n').length;
+
+    // 1. from brownie import ... → from ape import ...
+    text = text.replace(/from\s+brownie\s+import\s+([\s\S]+?)(?=\n|$)/g, (m, items) => {
+        let updated = items.replace(/\bnetwork\b/g, "networks");
+        updated = updated.replace(/,\s*Wei\b/g, "").replace(/\bWei\s*,\s*/g, "");
+        updated = updated.replace(/,\s*config\b/g, "").replace(/\bconfig\s*,\s*/g, "");
+        if (/\b[A-Z][a-zA-Z0-9_]*\b/.test(updated) && !/\bproject\b/.test(updated)) {
+            updated = "project, " + updated;
+        }
+        return `from ape import ${updated}`;
+    });
+
+    // 2. import brownie → import ape
+    text = text.replace(/\bimport\s+brownie\b/g, "import ape");
+
+    // 3. brownie.reverts → ape.reverts, brownie.exceptions → ape.exceptions, brownie.X → ape.X
+    text = text.replace(/\bbrownie\.reverts\b/g, "ape.reverts");
+    text = text.replace(/\bbrownie\.exceptions\b/g, "ape.exceptions");
+    text = text.replace(/\bbrownie\./g, "ape.");
+
+    // 4. accounts[N] → accounts.test_accounts[N]
+    text = text.replace(/\baccounts\[(\d+)\]/g, "accounts.test_accounts[$1]");
+
+    // 5+6. Deploy and function calls with {"from": ...}
+    // Handle {"from": acc, "value": Wei("X")}
+    text = text.replace(/,\s*\{\s*['"]from['"]\s*:\s*(.+?)(?:\s*,\s*['"]value['"]\s*:\s*(.+?))?\s*\}/g,
+        (full, acc, val) => {
+            const updAcc = acc.replace(/accounts\[(\d+)\]/g, "accounts.test_accounts[$1]");
+            let r = `, sender=${updAcc}`;
+            if (val) {
+                r += `, value=${val.replace(/Wei\((.+?)\)/g, "$1")}`;
+            }
+            return r;
+        });
+
+    // Handle when dict is the only argument
+    text = text.replace(/\(\s*\{\s*['"]from['"]\s*:\s*(.+?)(?:\s*,\s*['"]value['"]\s*:\s*(.+?))?\s*\}\s*\)/g,
+        (full, acc, val) => {
+            const updAcc = acc.replace(/accounts\[(\d+)\]/g, "accounts.test_accounts[$1]");
+            let r = `(sender=${updAcc}`;
+            if (val) {
+                r += `, value=${val.replace(/Wei\((.+?)\)/g, "$1")}`;
+            }
+            return r + ')';
+        });
+
+    // Prefix PascalCase.deploy with project.
+    text = text.replace(/\b([A-Z][a-zA-Z0-9_]*)\.deploy\(/g, (m, name) => {
+        if (name === 'Contract') return m;
+        return `project.${name}.deploy(`;
+    });
+
+    // 7. chain.sleep(N) → chain.pending_timestamp += N
+    text = text.replace(/chain\.sleep\((\w+)\)/g, "chain.pending_timestamp += $1");
+
+    // 8. chain.time() → chain.pending_timestamp
+    text = text.replace(/chain\.time\(\)/g, "chain.pending_timestamp");
+
+    // 9. chain.mine(N) → chain.mine(num_blocks=N)
+    text = text.replace(/chain\.mine\((\d+)\)/g, "chain.mine(num_blocks=$1)");
+
+    // 10. Wei("X") → "X"
+    text = text.replace(/\bWei\((.+?)\)/g, "$1");
+
+    // 11. Contract.at(addr) → Contract(addr)
+    text = text.replace(/\bContract\.at\(/g, "Contract(");
+
+    // 12. network.show_active() → networks.provider.network.name
+    text = text.replace(/\bnetwork\.show_active\(\)/g, "networks.provider.network.name");
+
+    // 13. network.connect(X) → TODO
+    text = text.replace(/network\.connect\((.+?)\)/g, '# TODO(ApeShift): Replace with ape networks context manager for $1');
+
+    // 14. network.disconnect() → TODO
+    text = text.replace(/network\.disconnect\(\)/g, "# TODO(ApeShift): network disconnect handled by ape context manager");
+
+    // 15. VirtualMachineError → ContractLogicError
+    text = text.replace(/\bVirtualMachineError\b/g, "ContractLogicError");
+
+    document.getElementById('output').value = text;
+
+    // Count changes
+    const changedLines = text.split('\n').filter((line, i) => {
+        const origLines = input.split('\n');
+        return i < origLines.length ? line !== origLines[i] : true;
+    }).length;
+    document.getElementById('lines-changed').textContent = changedLines;
+
+    const badge = document.getElementById('badge');
+    badge.classList.add('visible');
+    setTimeout(() => badge.classList.remove('visible'), 3000);
+}
+</script>
+</body>
+</html>

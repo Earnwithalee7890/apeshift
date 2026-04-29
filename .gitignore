@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build artifacts
+scripts/codemod.js
+dist/
+
+# Test repos (cloned for validation only)
+test-real-repo/
+test-ast-grep-js/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

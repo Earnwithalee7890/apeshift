@@ -1,0 +1,14 @@
+{
+  "name": "apeshift",
+  "version": "0.1.0",
+  "description": "Automate Brownie to Ape Framework migration",
+  "type": "module",
+  "scripts": {
+    "test": "npx codemod@latest jssg test -l python ./scripts/codemod.ts",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@codemod.com/jssg-types": "latest",
+    "typescript": "latest"
+  }
+}

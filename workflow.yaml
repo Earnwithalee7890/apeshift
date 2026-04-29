@@ -1,0 +1,62 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/codemod/codemod/refs/heads/main/schemas/workflow.json
+
+version: "1"
+
+params:
+  schema:
+    run_ai_step:
+      name: "Run AI refinement"
+      description: "Enable AI-powered fixups for complex edge cases (requires LLM_API_KEY)"
+      type: string
+      default: "false"
+
+nodes:
+  - id: jssg-apply
+    name: "Deterministic AST migration (20+ rules)"
+    type: automatic
+    steps:
+      - name: "Scan .py files and apply Brownie → Ape transformations"
+        js-ast-grep:
+          js_file: "scripts/codemod.ts"
+          language: "python"
+          include:
+            - "**/*.py"
+          exclude:
+            - "**/node_modules/**"
+            - "**/.venv/**"
+            - "**/venv/**"
+
+  - id: ai-refinement
+    name: "AI edge-case refinement"
+    type: automatic
+    depends_on: [jssg-apply]
+    steps:
+      - name: "AI fixups for patterns the AST rules cannot handle"
+        if: params.run_ai_step == "true"
+        ai:
+          prompt: |
+            You are finishing a Brownie → Ape Framework migration.
+            The deterministic AST step already handled:
+            - Import rewrites (brownie → ape)
+            - accounts[N] → accounts.test_accounts[N]
+            - Contract.deploy(..., {"from": X}) → project.Contract.deploy(..., sender=X)
+            - contract.func({"from": X}) → contract.func(sender=X)
+            - chain.sleep/time/mine API changes
+            - Wei() unwrapping
+            - brownie.reverts → ape.reverts
+            - Contract.at() → Contract()
+            - VirtualMachineError → ContractLogicError
+            - network.connect/disconnect → TODO comments
+
+            Now handle remaining edge cases:
+            1. Replace any remaining brownie-config.yaml references with ape-config.yaml equivalents.
+            2. Convert pytest fixtures that use `from brownie import ...` to use ape's built-in fixtures (accounts, project, chain, networks).
+            3. Resolve any TODO(ApeShift) comments with correct ape network context managers.
+            4. Fix any remaining `accounts.at("0x...", force=True)` patterns to `accounts.impersonate_account("0x...")`.
+            5. Convert `brownie.convert.*` utilities to native Python equivalents.
+            6. Ensure all contract interactions use `sender=` keyword instead of dict.
+
+            Constraints:
+            - Keep formatting roughly intact.
+            - If unsure about a transformation, add a TODO comment explaining why.
+            - Do NOT introduce new imports that don't exist in the ape package.
