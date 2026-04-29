@@ -1,0 +1,20 @@
+name: migrated-ape-project
+plugins:
+  - name: solidity
+
+solidity:
+    import_remapping:
+      - "@chainlink=smartcontractkit/chainlink-brownie-contracts@0.6.1"
+      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.3.2"
+
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.3.2
+  - smartcontractkit/chainlink-brownie-contracts@0.6.1
+
+# TODO(ApeShift): Brownie wallets.from_key removed.
+# Import your key with: ape accounts import <alias>
+
+# TODO(ApeShift): dotenv is handled natively by ape. Place .env in project root.
+
+ethereum:
+  default_network: development

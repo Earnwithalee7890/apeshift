@@ -12,7 +12,7 @@ params:
 
 nodes:
   - id: jssg-apply
-    name: "Deterministic AST migration (20+ rules)"
+    name: "Deterministic AST migration (26 rules)"
     type: automatic
     steps:
       - name: "Scan .py files and apply Brownie → Ape transformations"
@@ -26,10 +26,23 @@ nodes:
             - "**/.venv/**"
             - "**/venv/**"
 
+  - id: config-migrate
+    name: "Config migration (brownie-config → ape-config)"
+    type: automatic
+    depends_on: [jssg-apply]
+    steps:
+      - name: "Convert brownie-config.yaml to ape-config.yaml format"
+        js-ast-grep:
+          js_file: "scripts/config-migrate.ts"
+          language: "yaml"
+          include:
+            - "**/brownie-config.yaml"
+            - "**/brownie-config.yml"
+
   - id: ai-refinement
     name: "AI edge-case refinement"
     type: automatic
-    depends_on: [jssg-apply]
+    depends_on: [config-migrate]
     steps:
       - name: "AI fixups for patterns the AST rules cannot handle"
         if: params.run_ai_step == "true"
