@@ -417,11 +417,11 @@
     <!-- Stats -->
     <div class="stats-bar">
         <div class="stat">
-            <span class="stat-value">20+</span>
+            <span class="stat-value">26</span>
             <span class="stat-label">AST Rules</span>
         </div>
         <div class="stat">
-            <span class="stat-value">85%</span>
+            <span class="stat-value">93%</span>
             <span class="stat-label">Auto Coverage</span>
         </div>
         <div class="stat">
@@ -512,9 +512,14 @@ const RULES = [
     ["network.connect(X)", "# TODO: ape context"],
     ["network.disconnect()", "# TODO: ape context"],
     ["VirtualMachineError", "ContractLogicError"],
+    ["accounts.at(addr, force=True)", "accounts.impersonate_account(addr)"],
+    ["config['key']", "config['key'] # TODO"],
+    ["web3.ens.X", "web3.ens.X # TODO"],
+    ["fn_isolation", "fn_isolation # TODO"],
     ["network (import)", "networks"],
     ["Wei (import)", "removed"],
     ["config (import)", "removed"],
+    ["web3 (import)", "removed"],
 ];
 
 const grid = document.getElementById('rulesGrid');
@@ -615,6 +620,12 @@ function performMigration() {
 
     // 15. VirtualMachineError → ContractLogicError
     text = text.replace(/\bVirtualMachineError\b/g, "ContractLogicError");
+
+    // 16. accounts.at("0x...", force=True) → accounts.impersonate_account("0x...")
+    text = text.replace(/accounts\.at\((.+?)(?:,\s*force\s*=\s*True)?\)/g, "accounts.impersonate_account($1)");
+
+    // 17. web3 import removal (already handled in from brownie import)
+    text = text.replace(/,\s*web3\b/g, "").replace(/\bweb3\s*,\s*/g, "");
 
     document.getElementById('output').value = text;
 
