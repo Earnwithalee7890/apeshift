@@ -1,12 +1,13 @@
-# ApeShift 🐒⚡
+# ApeShift Pro 🐒⚡
 
 > **Production-grade Brownie → Ape Framework migration codemod**
 >
 > Built with [Codemod](https://codemod.com) · JSSG (ast-grep) · Python AST transformations
 
-[![Registry](https://img.shields.io/badge/codemod-registry-6366f1)](https://codemod.com/registry)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-passing-brightgreen)]()
+[![Registry: apeshift-pro](https://img.shields.io/badge/codemod--registry-apeshift--pro-6366f1?style=for-the-badge&logo=codemod)](https://app.codemod.com/registry/apeshift-pro)
+[![Live Demo](https://img.shields.io/badge/Interactive-Demo-ff69b4?style=for-the-badge&logo=vercel)](https://earnwithalee7890.github.io/apeshift/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-passing-brightgreen?style=for-the-badge)]()
 
 ---
 
