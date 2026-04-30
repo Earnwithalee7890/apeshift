@@ -1,6 +1,6 @@
 {
   "name": "apeshift-pro",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "description": "Automate Brownie to Ape Framework migration",
   "type": "module",
   "scripts": {
