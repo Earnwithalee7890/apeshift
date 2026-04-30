@@ -1,6 +1,6 @@
 schema_version: "1.0"
 
-name: "apeshift"
+name: "apeshift-pro"
 version: "1.0.0"
 description: "Production-grade Brownie to Ape Framework migration codemod — 20+ deterministic AST rules covering imports, accounts, deployments, transactions, chain APIs, testing patterns, and Wei conversions"
 author: "Boring AI"

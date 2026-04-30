@@ -2,7 +2,7 @@ name: Publish ApeShift to Codemod Registry
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
