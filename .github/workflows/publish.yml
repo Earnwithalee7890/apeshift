@@ -24,7 +24,3 @@ jobs:
       - name: Run tests
         run: npx codemod jssg test -l python ./scripts/codemod.ts
 
-      - name: Publish to Codemod Registry
-        run: npx codemod publish
-        env:
-          CODEMOD_AUTH_TOKEN: ${{ secrets.CODEMOD_TOKEN }}
