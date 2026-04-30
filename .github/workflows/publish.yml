@@ -27,4 +27,4 @@ jobs:
       - name: Publish to Codemod Registry
         run: npx codemod publish
         env:
-          CODEMOD_TOKEN: ${{ secrets.CODEMOD_TOKEN }}
+          CODEMOD_AUTH_TOKEN: ${{ secrets.CODEMOD_TOKEN }}
