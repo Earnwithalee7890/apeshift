@@ -69,13 +69,23 @@ We built ApeShift to completely eliminate the friction of migrating. By leveragi
 
 ## 🚀 Quick Start
 
-### Run on your codebase
+### Run directly from Codemod Registry (Recommended)
+
+Run the codemod on your project without downloading the repo:
+
+```bash
+npx codemod@latest apeshift-pro --target /path/to/your/brownie-project
+```
+
+### Run locally from the repository
+
+If you clone this repository, you can run the workflow locally:
 
 ```bash
 npx codemod workflow run -w ./workflow.yaml --target /path/to/brownie-project
 ```
 
-### Run with AI edge-case handling
+### Run with AI edge-case handling (Local only)
 
 ```bash
 npx codemod workflow run -w ./workflow.yaml --target /path/to/brownie-project \
