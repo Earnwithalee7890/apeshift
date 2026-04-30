@@ -19,6 +19,21 @@ No regex hacks. No string replacements. **Real AST-level code understanding.**
 
 ---
 
+## 💡 Why We Built This (The Value Proposition)
+
+**The Problem:**
+Brownie was the industry-standard Python testing framework for Ethereum smart contracts, but it is now officially **deprecated and unmaintained**. Thousands of DeFi protocols (like Yearn, Curve, and countless others) have massive test suites stuck on a dying framework. Migrating these repositories to the modern **Ape Framework** manually is a nightmare: it takes weeks of engineering time, is highly prone to human error, and halts product development.
+
+**The Solution:**
+We built ApeShift to completely eliminate the friction of migrating. By leveraging Codemod and AST (Abstract Syntax Tree) parsing, ApeShift understands Python semantics and automatically translates Brownie-specific syntax into Ape-compatible code.
+
+**The Impact:**
+- ⏱️ **Saves Weeks of Work:** What used to take a developer 2 weeks of tedious find-and-replace now takes **15 seconds**.
+- 🛡️ **Zero False Positives:** Because it uses AST (via `ast-grep`), it only modifies actual code structures, ignoring comments, strings, and unrelated variables.
+- 🔄 **Standardization:** Helps the entire Web3 Python ecosystem safely move to Ape Framework without abandoning their legacy test suites.
+
+---
+
 ## 🎯 Coverage — 26 Deterministic Transformation Rules
 
 | #  | Brownie Pattern | Ape Equivalent | Type |
