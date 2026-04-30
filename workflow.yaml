@@ -17,7 +17,7 @@ nodes:
     steps:
       - name: "Scan .py files and apply Brownie → Ape transformations"
         js-ast-grep:
-          js_file: "scripts/codemod.ts"
+          js_file: "codemod.js"
           language: "python"
           include:
             - "**/*.py"
@@ -33,7 +33,7 @@ nodes:
     steps:
       - name: "Convert brownie-config.yaml to ape-config.yaml format"
         js-ast-grep:
-          js_file: "scripts/config-migrate.ts"
+          js_file: "scripts/config-migrate.js"
           language: "yaml"
           include:
             - "**/brownie-config.yaml"
